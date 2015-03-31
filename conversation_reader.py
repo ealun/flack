@@ -30,9 +30,9 @@ def check_comments(slack_comments, name, token):
         '@%s' % bot_name in comment.get('text')):
       # This will have the user's id; use it to look up the name.
       try:
-        response = requests.get('https://slack.com/api/users.info',
-                                params={'token': token,
-                                        'user': comment.get('user')}).json()
+        response = requests.post('https://slack.com/api/users.info',
+                                 data={'token': token,
+                                       'user': comment.get('user')}).json()
         user = response['user']['name']
       except:
         user = None
