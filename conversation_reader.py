@@ -1,27 +1,43 @@
 #!/usr/bin/env python
 
 import argparse
+import json
 import requests
+import random
 import slack_logger
 from slackclient import SlackClient
 import time
 
 
-def make_reply(name, channel, token):
+_RESPONSES = json.load(open('responses.json'))
+
+
+def make_reply(name, channel, user, token):
   shawn_logger = slack_logger.init(token,
                                    name,
                                    channel,
                                    name)
   # Make a sassy reply in the way that only Shawn can: with farts.
-  # TODO: Add these responses
-  shawn_logger.info('Test fart')
+  response = random.choice(_RESPONSES)
+  # TODO: Figure out how to send the reply properly.
+  shawn_logger.info('@{} {}'.format(user, response) if user
+                    else response)
 
 
 def check_comments(slack_comments, name, token):
   for comment in slack_comments:
     if (comment.get('type') == 'message' and
         '@%s' % bot_name in comment.get('text')):
-      make_reply(name, comment.get('channel'), token)
+      # This will have the user's id; use it to look up the name.
+      try:
+        response = requests.get('https://slack.com/api/users.info',
+                                params={'token': token,
+                                        'user': comment.get('user')}).json()
+        user = response['user']['name']
+      except:
+        user = None
+      make_reply(name, comment.get('channel'), user, token)
+
 
 def main(args):
   # Start an RTM session and read conversations to listen
