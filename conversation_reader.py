@@ -48,7 +48,7 @@ def check_comments(slack_comments, bot_name, token):
         user = response['user']['name']
       except:
         user = None
-      joke = get_joke(username=user)
+      joke = get_joke(username='@{}'.format(user))
       if False:
         stream = SlackStream(dict(
             token=token,
