@@ -4,7 +4,6 @@ import argparse
 import json
 import requests
 import random
-import slack_logger
 from slackclient import SlackClient
 import time
 
@@ -12,19 +11,18 @@ import time
 _RESPONSES = json.load(open('responses.json'))
 
 
-def make_reply(name, channel, user, token):
-  shawn_logger = slack_logger.init(token,
-                                   name,
-                                   channel,
-                                   name)
+def make_reply(bot_name, channel, user, token):
   # Make a sassy reply in the way that only Shawn can: with farts.
   response = random.choice(_RESPONSES)
-  # TODO: Figure out how to send the reply properly.
-  shawn_logger.info('@{} {}'.format(user, response) if user
-                    else response)
+  data = {'token': token,
+          'channel': channel,
+          'username': bot_name,
+          'text': '@{} {}'.format(user, response) if user else response}
+  requests.post('https://slack.com/api/chat.postMessage',
+                data=data)
 
 
-def check_comments(slack_comments, name, token):
+def check_comments(slack_comments, bot_name, token):
   for comment in slack_comments:
     if (comment.get('type') == 'message' and
         '@%s' % bot_name in comment.get('text')):
@@ -36,7 +34,7 @@ def check_comments(slack_comments, name, token):
         user = response['user']['name']
       except:
         user = None
-      make_reply(name, comment.get('channel'), user, token)
+      make_reply(bot_name, comment.get('channel'), user, token)
 
 
 def main(args):
@@ -54,7 +52,7 @@ def main(args):
 def process_args():
   parser = argparse.ArgumentParser()
   parser.add_argument('--bot-name',
-                      default='shawntaylor')
+                      default='tester')
   parser.add_argument('--token')
   args = parser.parse_args()
   return args
