@@ -14,6 +14,8 @@ _LAUGHS = [
     'Hahaha!',
     'Lol!!',
     ':laughing:',
+    'Heh',
+    'hahaha'
 ]
 
 
@@ -35,13 +37,16 @@ class QAJoke(object):
     if username:
       question = 'Hey {}! {}'.format(username, question)
     self.question = question
-    self.answer = '{} {}'.format(answer, random.choice(_LAUGHS))
+    self.answer = answer
+    self.laughter = random.choice(_LAUGHS)
     self.delay_second = delay_seconds
 
   def tell_joke(self, stream):
     stream.write(self.question)
     time.sleep(self.delay_second)
     stream.write(self.answer)
+    time.sleep(self.delay_second)
+    stream.write(self.laughter)
 
 
 class ResponseJoke(object):
@@ -61,7 +66,7 @@ def get_joke(joke_type=None, username=None):
   if joke_type == 'qa':
     return QAJoke(random.choice(_QA_JOKES),
                   delay_seconds=random.randint(5, 10),
-                  username=username)
+                  username='@elubin') #username)
   elif joke_type == 'response':
     return ResponseJoke(random.choice(_RESPONSES),
                         username=username)

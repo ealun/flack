@@ -10,9 +10,6 @@ import time
 from jokes import get_joke
 
 
-_RESPONSES = json.load(open('responses.json'))
-
-
 class SlackStream(object):
 
   def __init__(self, data):
@@ -25,22 +22,9 @@ class SlackStream(object):
                   data=data)
 
 
-def make_reply(bot_name, channel, user, token):
-  # Make a sassy reply in the way that only Shawn can: with farts.
-  response = random.choice(_RESPONSES)
-  data = {'token': token,
-          'channel': 'G046U1HRJ', #channel,
-          'username': bot_name,
-          'text': '@{} {}'.format(user, response) if user else response}
-  requests.post('https://slack.com/api/chat.postMessage',
-                data=data)
-
-
 def check_comments(slack_comments, bot_name, token):
   for comment in slack_comments:
-    if (comment.get('type') == 'message' and
-        '@%s' % bot_name in comment.get('text')):
-      # This will have the user's id; use it to look up the name.
+    if comment.get('type') == 'message':
       try:
         response = requests.post('https://slack.com/api/users.info',
                                  data={'token': token,
@@ -48,7 +32,11 @@ def check_comments(slack_comments, bot_name, token):
         user = response['user']['name']
       except:
         user = None
-      joke = get_joke(username='@{}'.format(user))
+      response_joke = '@%s' % bot_name in comment.get('text')
+      if not response_joke and random.randint(1, 20) != 1:
+        continue
+      joke = get_joke(joke_type='response' if response_joke else None,
+                      username='@{}'.format(user))
       if False:
         stream = SlackStream(dict(
             token=token,
@@ -60,12 +48,9 @@ def check_comments(slack_comments, bot_name, token):
             channel='G046U1HRJ',
             username=bot_name))
       joke.tell_joke(stream)
-      #make_reply(bot_name, comment.get('channel'), user, token)
 
 
 def main(args):
-  # Start an RTM session and read conversations to listen
-  # for someone mentioning the bot's name.
   sc = SlackClient(args.token)
   if sc.rtm_connect():
     while True:
