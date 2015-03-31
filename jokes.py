@@ -43,6 +43,13 @@ class QAJoke(object):
     stream.write(self.answer)
 
 
+def get_joke(joke_type='qa', username=None):
+  if joke_type == 'qa':
+    return QAJoke(random.choice(_QA_JOKES),
+                  delay_seconds=random.randint(5, 10),
+                  username=username)
+
+
 def main(args):
   if args.type == 'qa':
     joke = QAJoke(random.choice(_QA_JOKES),
