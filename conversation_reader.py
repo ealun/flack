@@ -24,7 +24,7 @@ class SlackStream(object):
 
 def check_comments(slack_comments, bot_name, token):
   for comment in slack_comments:
-    if comment.get('type') == 'message':
+    if comment.get('type') == 'message' and comment.get('subtype') != 'bot_message':
       try:
         response = requests.post('https://slack.com/api/users.info',
                                  data={'token': token,
@@ -33,7 +33,7 @@ def check_comments(slack_comments, bot_name, token):
       except:
         user = None
       response_joke = '@%s' % bot_name in comment.get('text')
-      if not response_joke and random.randint(1, 20) != 1:
+      if not response_joke and random.randint(1, 5) != 1:
         continue
       joke = get_joke(joke_type='response' if response_joke else None,
                       username='@{}'.format(user))

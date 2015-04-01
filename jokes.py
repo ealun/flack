@@ -31,7 +31,7 @@ class NewlineWrapper(object):
 
 class QAJoke(object):
   
-  def __init__(self, qa_joke, username=None, delay_seconds=0):
+  def __init__(self, qa_joke, username=None, qa_delay_seconds=0, laugh_delay_seconds=0):
     question = qa_joke['q']
     answer = qa_joke['a']
     if username:
@@ -39,13 +39,15 @@ class QAJoke(object):
     self.question = question
     self.answer = answer
     self.laughter = random.choice(_LAUGHS)
-    self.delay_second = delay_seconds
+    self.qa_delay_second = qa_delay_seconds
+    self.laugh_delay_second = laugh_delay_seconds
+
 
   def tell_joke(self, stream):
     stream.write(self.question)
-    time.sleep(self.delay_second)
+    time.sleep(self.qa_delay_second)
     stream.write(self.answer)
-    time.sleep(self.delay_second)
+    time.sleep(self.laugh_delay_second)
     stream.write(self.laughter)
 
 
@@ -65,8 +67,9 @@ def get_joke(joke_type=None, username=None):
       'response'))
   if joke_type == 'qa':
     return QAJoke(random.choice(_QA_JOKES),
-                  delay_seconds=random.randint(5, 10),
-                  username='@elubin') #username)
+                  username='@elubin', #username)
+                  qa_delay_seconds=random.randint(5, 10),
+                  laugh_delay_seconds=random.randint(4, 7))
   elif joke_type == 'response':
     return ResponseJoke(random.choice(_RESPONSES),
                         username=username)
