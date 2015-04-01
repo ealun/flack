@@ -11,7 +11,7 @@ from jokes import get_joke
 
 
 _ICON_URL = 'https://media.licdn.com/mpr/mpr/shrinknp_400_400/p/5/000/26b/340/1a04f41.jpg'
-
+_BANNED_CHANNELS = {'C02950TDE', 'C02950TDJ', 'C03HU2AKW', 'C029RK17W'}
 
 class SlackStream(object):
 
@@ -35,23 +35,17 @@ def check_comments(slack_comments, bot_name, token):
         user = response['user']['name']
       except:
         user = None
-      response_joke = '@%s' % bot_name in comment.get('text')
-      if not response_joke and random.randint(1, 5) != 1:
+      response_joke = '@%s' % bot_name in comment.get('text', '')
+      channel = comment.get('channel')
+      if channel in _BANNED_CHANNELS or not response_joke and random.randint(1, 3) != 1:
         continue
       joke = get_joke(joke_type='response' if response_joke else None,
                       username='@{}'.format(user))
-      if False:
-        stream = SlackStream(dict(
-            token=token,
-            icon_url=_ICON_URL,
-            channel=comment.get('channel'),
-            username=bot_name))
-      else:
-        stream = SlackStream(dict(
-            token=token,
-            icon_url=_ICON_URL,
-            channel='G046U1HRJ',
-            username=bot_name))
+      stream = SlackStream(dict(
+          token=token,
+          icon_url=_ICON_URL,
+          channel=channel,
+          username=bot_name))
       joke.tell_joke(stream)
 
 
