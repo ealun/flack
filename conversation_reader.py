@@ -10,6 +10,9 @@ import time
 from jokes import get_joke
 
 
+_ICON_URL = 'https://media.licdn.com/mpr/mpr/shrinknp_400_400/p/5/000/26b/340/1a04f41.jpg'
+
+
 class SlackStream(object):
 
   def __init__(self, data):
@@ -40,11 +43,13 @@ def check_comments(slack_comments, bot_name, token):
       if False:
         stream = SlackStream(dict(
             token=token,
+            icon_url=_ICON_URL,
             channel=comment.get('channel'),
             username=bot_name))
       else:
         stream = SlackStream(dict(
             token=token,
+            icon_url=_ICON_URL,
             channel='G046U1HRJ',
             username=bot_name))
       joke.tell_joke(stream)

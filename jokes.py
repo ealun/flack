@@ -67,7 +67,7 @@ def get_joke(joke_type=None, username=None):
       'response'))
   if joke_type == 'qa':
     return QAJoke(random.choice(_QA_JOKES),
-                  username='@elubin', #username)
+                  username=username,
                   qa_delay_seconds=random.randint(5, 10),
                   laugh_delay_seconds=random.randint(4, 7))
   elif joke_type == 'response':
